@@ -70,19 +70,19 @@ syntax Invocation
     = invocation: '(' ID opName ID+ params ')'
 ;
 
-//Expression ya sirve!
 syntax Expression
     = expression: 'defexpression' TopExp topExp 'end'
 ;
 
+/*
+ * Corrección del feedback del monitor:
+ * El cuantificador ya no puede terminar solo con AttributeList.
+ * Ahora siempre debe tener cuerpo después del punto:
+ * (forall x in Set . expresion)
+ */
 syntax TopExp
-    = quantExp: '(' Quantifier quantifier ID obj1 'in' ID obj2 FollowExp follow ')'
+    = quantExp: '(' Quantifier quantifier ID obj1 'in' ID obj2 '.' TopExp topExp ')'
     | orExpRec: OrExp orExp
-;
-
-syntax FollowExp
-    = nextExp: '.' TopExp topExp
-    | attributes: AttributeList attrs
 ;
 
 syntax OrExp
@@ -112,7 +112,7 @@ syntax Primary
     | primaryBool: BoolLiteral boolVal
     | primaryString: STRING strVal
     | primaryChar: CHAR charVal
-    | grouped: '(' OrExp orExp ')'
+    | grouped: '(' TopExp topExp ')'
 ;
 
 syntax Number
@@ -122,6 +122,8 @@ syntax Number
 
 syntax RelOp
     = eq: '=' 
+    | gt: '\>'
+    | lt: '\<'
     | ge: '\>=' 
     | le: '\<=' 
     | equiv: '≡' 
@@ -134,7 +136,7 @@ syntax Quantifier
     | defer: 'defer'
 ;
 
-//No utilizado todvía pero pertenece al lenguaje
+// No utilizado todavía, pero pertenece al lenguaje
 syntax ArithOp
     = '+' | '-' | '*' | '/' | '**' | '%' 
 ;
@@ -146,9 +148,33 @@ syntax BoolLiteral
 
 lexical STRING = "\"" ![\"\n]* "\"";
 lexical CHAR = "\'" [^\'\n] "\'";
-lexical INT = ([\-0-9][0-9]* !>> [0-9]); 
-lexical FLOAT = [0-9]+ "." [0-9]+;
+
+lexical INT = [0-9]+ !>> [0-9];
+lexical FLOAT = [0-9]+ "." [0-9]+ !>> [0-9];
+
 lexical ID = ([a-zA-Z][a-zA-Z0-9_/.\-]* !>> [a-zA-Z0-9_/.\-]) \ Reserved;
-keyword Reserved = "forall" | "exists" | "defer" | "not" | "and" | "or" | "in" 
-| "defrule" | "defexpression" | "defvar" | "defoperator" | "defspace" | "defmodule" | "using"
-| "bool" | "int" | "real" | "end"| "true"| "false" | "string" | "char" ;
+
+keyword Reserved 
+    = "forall" 
+    | "exists" 
+    | "defer" 
+    | "not" 
+    | "and" 
+    | "or" 
+    | "in" 
+    | "defrule" 
+    | "defexpression" 
+    | "defvar" 
+    | "defoperator" 
+    | "defspace" 
+    | "defmodule" 
+    | "using"
+    | "bool" 
+    | "int" 
+    | "real" 
+    | "end"
+    | "true"
+    | "false" 
+    | "string" 
+    | "char"
+;

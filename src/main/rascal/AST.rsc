@@ -36,7 +36,8 @@ data Domain
     | realDomain()
     | stringDomain()
     | charDomain()
-    | nameDomain(str domainName);
+    | nameDomain(str domainName)
+;
 
 data AttributeList
     = attributeList(list[Attribute] attributes)
@@ -67,14 +68,14 @@ data Expression
     = expression(TopExp topExp)
 ;
 
+/*
+ * Corregido según Syntax.rsc:
+ * El cuantificador ya no usa FollowExp.
+ * Ahora siempre tiene cuerpo TopExp después del punto.
+ */
 data TopExp
-    = quantExp(Quantifier quantifier, str obj1, str obj2, FollowExp follow)
+    = quantExp(Quantifier quantifier, str obj1, str obj2, TopExp topExp)
     | orExpRec(OrExp orExp)
-;
-
-data FollowExp
-    = nextExp(TopExp topExp)
-    | attributes(AttributeList attributes)
 ;
 
 data OrExp 
@@ -98,21 +99,28 @@ data RelExp
     | onlyPrimary(Primary primary)
 ;
 
+/*
+ * Corregido según Syntax.rsc:
+ * grouped ahora contiene TopExp, no OrExp.
+ */
 data Primary
     = primaryId(str id)
     | primaryNum(Number number)
     | primaryBool(BoolLiteral boolVal)
     | primaryString(str strVal)
     | primaryChar(str charVal)
-    | grouped(OrExp orExp)
+    | grouped(TopExp topExp)
 ;
 
 data Number
     = intNumber(int valInt)
-    | floatNumber(num valFloat);
+    | floatNumber(num valFloat)
+;
 
 data RelOp
     = eq()
+    | gt()
+    | lt()
     | ge()
     | le()
     | equiv()
@@ -129,4 +137,3 @@ data BoolLiteral
     = trueLiteral()
     | falseLiteral()
 ;
-

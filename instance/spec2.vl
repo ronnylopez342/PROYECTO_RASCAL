@@ -1,17 +1,24 @@
 defmodule Test
-defspace Set end
+
+defspace Reals end
 defspace Integer < Reals end
+defspace Set end
 
 defvar
     x:int
-    y:bool
+    y:int
     s:Set
+    t:Set
+    b:bool
 end
 
 defoperator union : Set -> Set -> Set end
-defoperator suma: bool -> bool end
+defoperator suma : int -> int -> int end
+
+defrule (suma x y) -> (suma y x) end
 
 defexpression x = y end
-defexpression x end
+defexpression s union t end
+defexpression b end
 
 end

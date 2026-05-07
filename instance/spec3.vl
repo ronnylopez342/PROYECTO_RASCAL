@@ -1,0 +1,10 @@
+defmodule Test2
+
+defoperator negation : bool -> bool end
+
+defvar p : bool
+end
+
+defrule (negation p) -> (negation z) end
+
+end

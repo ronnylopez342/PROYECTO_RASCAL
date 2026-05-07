@@ -1,0 +1,17 @@
+defmodule Test
+defspace Set end
+defspace Integer < Reals end
+
+defvar
+    x:int
+    y:bool
+    s:Set
+end
+
+defoperator union : Set -> Set -> Set end
+defoperator suma: bool -> bool end
+
+defexpression x = y end
+defexpression x end
+
+end

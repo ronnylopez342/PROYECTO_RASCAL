@@ -1,0 +1,17 @@
+defmodule MiModulo
+using LibA
+using LibB
+defvar x:int end
+defspace enteros < reales end
+defoperator suma : int -> int -> int end
+defoperator resta : float -> float end
+defrule (suma x y) -> (suma y x) end
+[conmutative:bool asociative:int]
+defexpression (forall x in set . (b inter a)) end
+defexpression (defer y in Set . (y min 0)) end
+defexpression (abs ≡ 0) end
+defexpression (not r and s or r) end
+defexpression (defer x in Set . x and y) end
+defexpression (forall x in Element . (forall S in Set . (forall U in Set . x isIn (S union U)))) end
+defexpression (forall y in Set  [hola:int]) end
+end

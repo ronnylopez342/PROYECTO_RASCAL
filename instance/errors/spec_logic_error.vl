@@ -1,0 +1,10 @@
+defmodule LogicErrorExample
+
+defvar
+    x : int
+    y : bool
+end
+
+defexpression x and y end
+
+end

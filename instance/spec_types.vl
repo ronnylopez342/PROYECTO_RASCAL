@@ -1,0 +1,35 @@
+defmodule TypeExamples
+
+defspace Person end
+defspace Group end
+
+defvar
+    age : int
+    otherAge : int
+    active : bool
+    verified : bool
+    score : real
+    otherScore : real
+    name : string
+    otherName : string
+    initial : char
+    otherInitial : char
+    p : Person
+    q : Person
+    g : Group
+end
+
+defoperator samePerson : Person -> Person -> bool end
+defoperator belongsTo : Person -> Group -> bool end
+defoperator combineScores : real -> real -> real end
+
+defexpression age = otherAge end
+defexpression active and verified end
+defexpression score = otherScore end
+defexpression name = otherName end
+defexpression initial = otherInitial end
+defexpression p = q end
+defexpression p belongsTo g end
+defexpression p samePerson q end
+
+end

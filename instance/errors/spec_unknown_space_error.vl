@@ -1,0 +1,9 @@
+defmodule UnknownSpaceError
+
+defvar
+    x : UnknownSpace
+end
+
+defexpression x = x end
+
+end

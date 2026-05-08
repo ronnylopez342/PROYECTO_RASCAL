@@ -142,6 +142,7 @@ void collect(
     Collector c
 ) {
     c.use(name, {variableId(), operatorId(), spaceId()});
+    c.fact(current, name);
 }
 
 void collect(
@@ -191,7 +192,7 @@ void collect(
     Collector c
 ) {
     collect(e, c);
-    c.fact(current, boolType());
+    c.fact(current, e);
 }
 
 void collect(
@@ -213,7 +214,19 @@ void collect(
 
     c.leaveScope(current);
 
-    c.fact(current, boolType());
+    c.calculate(
+        "quantifier",
+        current,
+        [body],
+        AType(Solver s) {
+            s.requireEqual(
+                body,
+                boolType(),
+                error(body, "El cuerpo del cuantificador debe tener tipo booleano")
+            );
+            return boolType();
+        }
+    );
 }
 
 void collect(
@@ -221,7 +234,7 @@ void collect(
     Collector c
 ) {
     collect(e, c);
-    c.fact(current, boolType());
+    c.fact(current, e);
 }
 
 void collect(
@@ -231,13 +244,19 @@ void collect(
     collect(p1, c);
     collect(p2, c);
 
-    c.requireEqual(
-        p1,
-        p2,
-        error(current, "Los dos lados de la relación deben tener el mismo tipo")
+    c.calculate(
+        "relation",
+        current,
+        [p1, p2],
+        AType(Solver s) {
+            s.requireEqual(
+                p1,
+                p2,
+                error(current, "Los dos lados de la relacion deben tener el mismo tipo")
+            );
+            return boolType();
+        }
     );
-
-    c.fact(current, boolType());
 }
 
 void collect(
@@ -257,6 +276,7 @@ void collect(
     Collector c
 ) {
     collect(p, c);
+    c.fact(current, p);
 }
 
 void collect(
@@ -265,7 +285,27 @@ void collect(
 ) {
     collect(l, c);
     collect(r, c);
-    c.fact(current, boolType());
+
+    c.calculate(
+        "or",
+        current,
+        [l, r],
+        AType(Solver s) {
+            s.requireEqual(
+                l,
+                boolType(),
+                error(l, "El lado izquierdo de or debe tener tipo booleano")
+            );
+
+            s.requireEqual(
+                r,
+                boolType(),
+                error(r, "El lado derecho de or debe tener tipo booleano")
+            );
+
+            return boolType();
+        }
+    );
 }
 
 void collect(
@@ -273,6 +313,7 @@ void collect(
     Collector c
 ) {
     collect(a, c);
+    c.fact(current, a);
 }
 
 void collect(
@@ -281,7 +322,27 @@ void collect(
 ) {
     collect(l, c);
     collect(r, c);
-    c.fact(current, boolType());
+
+    c.calculate(
+        "and",
+        current,
+        [l, r],
+        AType(Solver s) {
+            s.requireEqual(
+                l,
+                boolType(),
+                error(l, "El lado izquierdo de and debe tener tipo booleano")
+            );
+
+            s.requireEqual(
+                r,
+                boolType(),
+                error(r, "El lado derecho de and debe tener tipo booleano")
+            );
+
+            return boolType();
+        }
+    );
 }
 
 void collect(
@@ -289,6 +350,7 @@ void collect(
     Collector c
 ) {
     collect(n, c);
+    c.fact(current, n);
 }
 
 void collect(
@@ -296,7 +358,21 @@ void collect(
     Collector c
 ) {
     collect(e, c);
-    c.fact(current, boolType());
+
+    c.calculate(
+        "not",
+        current,
+        [e],
+        AType(Solver s) {
+            s.requireEqual(
+                e,
+                boolType(),
+                error(e, "El operador not solo puede aplicarse a expresiones booleanas")
+            );
+
+            return boolType();
+        }
+    );
 }
 
 void collect(
@@ -304,6 +380,7 @@ void collect(
     Collector c
 ) {
     collect(e, c);
+    c.fact(current, e);
 }
 
 bool subtype(AType t, AType t) = true;

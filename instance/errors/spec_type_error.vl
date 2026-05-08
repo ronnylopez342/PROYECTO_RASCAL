@@ -1,0 +1,10 @@
+defmodule TypeErrorExample
+
+defvar
+    x : int
+    y : bool
+end
+
+defexpression x = y end
+
+end

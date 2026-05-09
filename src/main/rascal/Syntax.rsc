@@ -124,7 +124,9 @@ syntax Number
 ;
 
 syntax RelOp
-    = eq: '=' 
+    = eq: '='
+    | gt: '\>'
+    | lt: '\<'
     | ge: '\>=' 
     | le: '\<=' 
     | equiv: '≡' 
@@ -148,8 +150,17 @@ syntax BoolLiteral
 
 lexical STRING = "\"" ![\"\n]* "\"";
 lexical CHAR = "\'" [^\'\n] "\'";
-lexical INT = ([\-0-9][0-9]* !>> [0-9]); 
+
+/*
+ * INT corregido:
+ * Antes permitía "-" solo como entero.
+ * Ahora acepta un signo negativo opcional seguido obligatoriamente
+ * por uno o más dígitos.
+ */
+lexical INT = [\-]? [0-9]+ !>> [0-9];
+
 lexical FLOAT = [0-9]+ "." [0-9]+;
+
 lexical ID = ([a-zA-Z][a-zA-Z0-9_/.\-]* !>> [a-zA-Z0-9_/.\-]) \ Reserved;
 
 keyword Reserved = "forall" | "exists" | "defer" | "not" | "and" | "or" | "in" 

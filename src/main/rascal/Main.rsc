@@ -19,11 +19,18 @@ int main() {
 
 /*
  * Main con archivo.
+ *
  * Flujo completo:
  * 1. Parsear el archivo .vl
  * 2. Ejecutar el checker con TypePal
  * 3. Si hay errores reales, mostrarlos y detener
- * 4. Si no hay errores, generar código y escribir la salida
+ * 4. Si no hay errores, generar codigo VeriLang
+ * 5. Mostrar el resultado en consola
+ *
+ * Nota:
+ * El enunciado pide mostrar el resultado en consola.
+ * Por eso Main.rsc no depende de escribir archivos de salida.
+ * Los archivos generados de evidencia se mantienen en instance/output/.
  */
 int main(loc archivo) {
     println("========================================");
@@ -69,14 +76,6 @@ int main(loc archivo) {
     println("----------------------------------------");
     println(result);
     println("----------------------------------------");
-
-    writeFile(
-        |project://rascaldslverilang/instance/output/testGenerator.vl|,
-        result
-    );
-
-    println("\nArchivo generado en:");
-    println(|project://rascaldslverilang/instance/output/testGenerator.vl|);
 
     println("\nEjecucion finalizada correctamente.");
     println("========================================");

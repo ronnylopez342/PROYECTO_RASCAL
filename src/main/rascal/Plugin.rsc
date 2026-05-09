@@ -6,20 +6,21 @@ import util::Reflective;
 import util::IDEServices;
 import util::LanguageServer;
 import Relation;
+import String;
 
 import Syntax;
 import Checker;
 import Generator;
 import Implode;
 
-PathConfig pcfg = getProjectPathConfig(|project://rascaldslverilang|);
-Language tdslLang = language(pcfg, "VL", "vl", "Plugin", "contribs");
+extend analysis::typepal::TypePal;
 
 data Command = gen(Tree cst);
 
 Summary tdslSummarizer(loc l, start[MainModule] input) {
     TModel tm = modulesTModelFromTree(input);
     UseDef defs = getUseDef(tm);
+
     return summary(l,
         messages    = {<m.at, m> | m <- getMessages(tm), !(m is info)},
         definitions = defs
@@ -36,19 +37,55 @@ set[LanguageService] contribs() = {
         };
     }),
     summarizer(tdslSummarizer),
-
     executor(exec)
 };
 
 value exec(gen(Tree cst)) {
+    TModel tm = modulesTModelFromTree(cst);
+
+    list[Message] errors = [
+        m
+        | m <- getMessages(tm),
+          m is error
+    ];
+
+    if (errors != []) {
+        loc errorFile = |project://rascaldslverilang/instance/output/generator_errors.txt|;
+
+        str report = "No se genero codigo porque el programa VeriLang contiene errores semanticos.\n\n"
+                   + "Errores encontrados:\n"
+                   + intercalate("\n", ["<m>" | m <- errors])
+                   + "\n";
+
+        writeFile(errorFile, report);
+        edit(errorFile);
+
+        println("No se genero codigo porque el programa contiene errores semanticos.");
+
+        for (m <- errors) {
+            println(m);
+        }
+
+        return ("result": false);
+    }
+
     str rVal = generator(cst);
+
     loc outputFile = |project://rascaldslverilang/instance/output/generator.vl|;
+
     writeFile(outputFile, rVal);
     edit(outputFile);
+
+    println("Codigo generado correctamente en:");
+    println(outputFile);
+
     return ("result": true);
 }
 
 void main() {
+    PathConfig pcfg = getProjectPathConfig(|project://rascaldslverilang|);
+    Language tdslLang = language(pcfg, "VL", "vl", "Plugin", "contribs");
+
     registerLanguage(tdslLang);
     println("Plugin loaded!");
 }

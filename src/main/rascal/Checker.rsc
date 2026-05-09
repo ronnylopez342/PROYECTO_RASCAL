@@ -513,14 +513,6 @@ void collect(
 }
 
 void collect(
-    current: (OrExp) `<AndExp a>`,
-    Collector c
-) {
-    collect(a, c);
-    c.fact(current, a);
-}
-
-void collect(
     current: (AndExp) `<NotExp n>`,
     Collector c
 ) {

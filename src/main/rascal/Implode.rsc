@@ -11,13 +11,19 @@ import Node;
  * Convierte el arbol concreto producido por el parser
  * en el AST definido en AST.rsc.
  *
- * Como Syntax.rsc y AST.rsc ya tienen las mismas etiquetas
- * principales, Rascal puede hacer el implode automaticamente.
+ * Como Syntax.rsc y AST.rsc tienen etiquetas alineadas,
+ * Rascal puede hacer el implode automaticamente.
  *
- * Cambio relacionado con Proyecto 3:
- * Invocation ahora usa list[Primary] en AST.rsc.
- * No se necesita una funcion manual aqui porque el implode
- * puede convertir Primary+ params hacia list[Primary] params.
+ * En esta version final, Invocation se separa en:
+ *
+ * - unaryInvocation(str opName, Primary param)
+ * - binaryInvocation(str opName, Primary param1, Primary param2)
+ *
+ * Esto permite que Checker.rsc valide aridad y tipos de argumentos
+ * en reglas como:
+ *
+ * defrule (negation p) -> (negation z) end
+ * defrule (suma x y) -> (suma y x) end
  */
 public MainModule implodeMain(Tree pt) = implode(#MainModule, pt);
 

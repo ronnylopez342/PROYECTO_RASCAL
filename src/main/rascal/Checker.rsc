@@ -99,14 +99,131 @@ void collect(
 }
 
 void collect(
-    current: (Invocation) `(<ID opName> <ID+ params>)`,
+    current: (Rule) `defrule <Invocation left> -\> <Invocation right> end`,
+    Collector c
+) {
+    collect(left, c);
+    collect(right, c);
+
+    c.calculate(
+        "rule",
+        current,
+        [left, right],
+        AType(Solver s) {
+            s.requireEqual(
+                left,
+                right,
+                error(current, "Los dos lados de la regla deben producir el mismo tipo")
+            );
+
+            return s.getType(left);
+        }
+    );
+}
+
+void collect(
+    current: (Invocation) `(<ID opName> <Primary p1>)`,
     Collector c
 ) {
     c.use(opName, {operatorId()});
-    
-    for (p <- params) {
-        c.use(p, {variableId(), spaceId()});
-    }
+    c.fact(opName, opName);
+
+    collect(p1, c);
+
+    c.calculate(
+        "unary invocation",
+        current,
+        [opName, p1],
+        AType(Solver s) {
+            AType opType = s.getType(opName);
+
+            if (functionType(signature) := opType) {
+                if (size(signature) != 2) {
+                    s.report(
+                        error(
+                            current,
+                            "La invocacion unaria requiere un operador con un argumento y un retorno"
+                        )
+                    );
+
+                    return signature[size(signature) - 1];
+                }
+
+                s.requireEqual(
+                    p1,
+                    signature[0],
+                    error(p1, "El argumento no coincide con el tipo esperado por el operador")
+                );
+
+                return signature[1];
+            }
+
+            s.report(
+                error(
+                    opName,
+                    "El identificador usado en la invocacion no tiene una firma de operador valida"
+                )
+            );
+
+            return boolType();
+        }
+    );
+}
+
+void collect(
+    current: (Invocation) `(<ID opName> <Primary p1> <Primary p2>)`,
+    Collector c
+) {
+    c.use(opName, {operatorId()});
+    c.fact(opName, opName);
+
+    collect(p1, c);
+    collect(p2, c);
+
+    c.calculate(
+        "binary invocation",
+        current,
+        [opName, p1, p2],
+        AType(Solver s) {
+            AType opType = s.getType(opName);
+
+            if (functionType(signature) := opType) {
+                if (size(signature) != 3) {
+                    s.report(
+                        error(
+                            current,
+                            "La invocacion binaria requiere un operador con dos argumentos y un retorno"
+                        )
+                    );
+
+                    return signature[size(signature) - 1];
+                }
+
+                s.requireEqual(
+                    p1,
+                    signature[0],
+                    error(p1, "El primer argumento no coincide con el tipo esperado por el operador")
+                );
+
+                s.requireEqual(
+                    p2,
+                    signature[1],
+                    error(p2, "El segundo argumento no coincide con el tipo esperado por el operador")
+                );
+
+                return signature[2];
+            }
+
+            s.report(
+                error(
+                    opName,
+                    "El identificador usado en la invocacion no tiene una firma de operador valida"
+                )
+            );
+
+            return boolType();
+        }
+    );
 }
 
 void collect(
@@ -224,6 +341,7 @@ void collect(
                 boolType(),
                 error(body, "El cuerpo del cuantificador debe tener tipo booleano")
             );
+
             return boolType();
         }
     );
@@ -254,6 +372,7 @@ void collect(
                 p2,
                 error(current, "Los dos lados de la relacion deben tener el mismo tipo")
             );
+
             return boolType();
         }
     );
@@ -264,11 +383,59 @@ void collect(
     Collector c
 ) {
     c.use(op, {operatorId()});
+    c.fact(op, op);
 
     collect(p1, c);
     collect(p2, c);
 
-    c.fact(current, boolType());
+    c.calculate(
+        "custom infix operator",
+        current,
+        [op, p1, p2],
+        AType(Solver s) {
+            AType opType = s.getType(op);
+
+            if (functionType(signature) := opType) {
+                if (size(signature) != 3) {
+                    s.report(
+                        error(
+                            op,
+                            "El operador infijo debe tener exactamente dos argumentos y un tipo de retorno"
+                        )
+                    );
+
+                    return signature[size(signature) - 1];
+                }
+
+                s.requireEqual(
+                    p1,
+                    signature[0],
+                    error(p1, "El lado izquierdo del operador no coincide con su firma")
+                );
+
+                s.requireEqual(
+                    p2,
+                    signature[1],
+                    error(p2, "El lado derecho del operador no coincide con su firma")
+                );
+
+                return signature[2];
+            }
+
+            if (boolType() := opType) {
+                return boolType();
+            }
+
+            s.report(
+                error(
+                    op,
+                    "El operador infijo no tiene una firma valida"
+                )
+            );
+
+            return boolType();
+        }
+    );
 }
 
 void collect(
@@ -343,6 +510,14 @@ void collect(
             return boolType();
         }
     );
+}
+
+void collect(
+    current: (OrExp) `<AndExp a>`,
+    Collector c
+) {
+    collect(a, c);
+    c.fact(current, a);
 }
 
 void collect(

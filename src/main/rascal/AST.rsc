@@ -1,6 +1,6 @@
 module AST
 
-data MainModule 
+data MainModule
     = mainModule(str moduleName, list[FileImport] fileImports, Body body)
 ;
 
@@ -60,31 +60,38 @@ data Rule
     = rule(Invocation opApl1, Invocation opApl2)
 ;
 
+/*
+ * Invocaciones usadas en reglas.
+ *
+ * Se separan en dos casos para facilitar el chequeo semantico:
+ *
+ * unaryInvocation:
+ *     (negation p)
+ *
+ * binaryInvocation:
+ *     (suma x y)
+ */
 data Invocation
-    = invocation(str opName, list[str] params)
+    = unaryInvocation(str opName, Primary param)
+    | binaryInvocation(str opName, Primary param1, Primary param2)
 ;
 
 data Expression
     = expression(TopExp topExp)
 ;
 
-/*
- * Corregido según Syntax.rsc:
- * El cuantificador ya no usa FollowExp.
- * Ahora siempre tiene cuerpo TopExp después del punto.
- */
 data TopExp
     = quantExp(Quantifier quantifier, str obj1, str obj2, TopExp topExp)
     | orExpRec(OrExp orExp)
 ;
 
-data OrExp 
-    = orExp(OrExp left, AndExp right) 
+data OrExp
+    = orExp(OrExp left, AndExp right)
     | andTerm(AndExp andExp)
 ;
 
-data AndExp 
-    = andExp(AndExp left, NotExp right) 
+data AndExp
+    = andExp(AndExp left, NotExp right)
     | notTerm(NotExp notExp)
 ;
 
@@ -99,10 +106,6 @@ data RelExp
     | onlyPrimary(Primary primary)
 ;
 
-/*
- * Corregido según Syntax.rsc:
- * grouped ahora contiene TopExp, no OrExp.
- */
 data Primary
     = primaryId(str id)
     | primaryNum(Number number)
@@ -131,6 +134,19 @@ data Quantifier
     = forall()
     | exists()
     | defer()
+;
+
+/*
+ * No se usa todavia en el lenguaje,
+ * pero pertenece a la definicion general de VeriLang.
+ */
+data ArithOp
+    = arithAdd()
+    | arithSub()
+    | arithMul()
+    | arithDiv()
+    | arithPow()
+    | arithMod()
 ;
 
 data BoolLiteral

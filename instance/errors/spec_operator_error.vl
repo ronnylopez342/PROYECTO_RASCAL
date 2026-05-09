@@ -1,0 +1,17 @@
+defmodule OperatorErrorExample
+
+defspace Person end
+defspace Group end
+
+defvar
+    age : int
+    name : string
+    p : Person
+    g : Group
+end
+
+defoperator belongsTo : Person -> Group -> bool end
+
+defexpression age belongsTo name end
+
+end

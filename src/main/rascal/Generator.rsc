@@ -86,18 +86,17 @@ str generate(rule(Invocation i1, Invocation i2)) {
     return "defrule <generate(i1)> -\> <generate(i2)> end";
 }
 
-str generate(invocation(str name, list[str] params)) {
-    return "(<name> <intercalate(" ", params)>)";
+str generate(unaryInvocation(str name, Primary param)) {
+    return "(<name> <generate(param)>)";
+}
+
+str generate(binaryInvocation(str name, Primary param1, Primary param2)) {
+    return "(<name> <generate(param1)> <generate(param2)>)";
 }
 
 // Expression
 str generate(expression(TopExp t)) = "defexpression <generate(t)> end";
 
-/*
- * Corregido:
- * Antes era quantExp(..., FollowExp f).
- * Ahora el AST tiene directamente TopExp como cuerpo del cuantificador.
- */
 str generate(quantExp(Quantifier q, str o1, str o2, TopExp body)) {
     return "(<generate(q)> <o1> in <o2> . <generate(body)>)";
 }
@@ -139,12 +138,6 @@ str generate(primaryNum(Number n)) = generate(n);
 str generate(primaryBool(BoolLiteral b)) = generate(b);
 str generate(primaryString(str val)) = val;
 str generate(primaryChar(str c)) = c;
-
-/*
- * Corregido:
- * Antes era grouped(OrExp e).
- * Ahora el AST tiene grouped(TopExp e).
- */
 str generate(grouped(TopExp e)) = "(<generate(e)>)";
 
 // Number

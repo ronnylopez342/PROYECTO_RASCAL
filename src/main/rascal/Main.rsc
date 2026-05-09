@@ -2,19 +2,84 @@ module Main
 
 import IO;
 import ParseTree;
+
 import Parser;
 import Generator;
+import Checker;
 
+import analysis::typepal::TypePal;
+
+/*
+ * Main por defecto.
+ * Ejecuta el ejemplo principal del proyecto.
+ */
+int main() {
+    return main(|project://rascaldslverilang/instance/spec1.vl|);
+}
+
+/*
+ * Main con archivo.
+ * Flujo completo:
+ * 1. Parsear el archivo .vl
+ * 2. Ejecutar el checker con TypePal
+ * 3. Si hay errores reales, mostrarlos y detener
+ * 4. Si no hay errores, generar código y escribir la salida
+ */
 int main(loc archivo) {
+    println("========================================");
+    println("Ejecucion de programa VeriLang");
+    println("========================================");
+
+    println("Archivo de entrada:");
+    println(archivo);
+
+    println("\n1. Parseando archivo...");
     Tree cst = parseMainModule(archivo);
+    println("Parser ejecutado correctamente.");
+
+    println("\n2. Ejecutando checker con TypePal...");
+    TModel tm = modulesTModelFromTree(cst);
+
+    list[Message] errors = [
+        m
+        | m <- getMessages(tm),
+          m is error
+    ];
+
+    if (errors != []) {
+        println("\nEl programa contiene errores semanticos:");
+
+        for (m <- errors) {
+            println(m);
+        }
+
+        println("\nNo se genera codigo porque el programa no paso el chequeo semantico.");
+        println("========================================");
+
+        return 1;
+    }
+
+    println("Checker ejecutado correctamente.");
+    println("No se encontraron errores semanticos.");
+
+    println("\n3. Generando codigo VeriLang...");
     str result = generator(cst);
 
+    println("\nResultado generado:");
+    println("----------------------------------------");
     println(result);
+    println("----------------------------------------");
 
     writeFile(
         |project://rascaldslverilang/instance/output/testGenerator.vl|,
         result
     );
+
+    println("\nArchivo generado en:");
+    println(|project://rascaldslverilang/instance/output/testGenerator.vl|);
+
+    println("\nEjecucion finalizada correctamente.");
+    println("========================================");
 
     return 0;
 }

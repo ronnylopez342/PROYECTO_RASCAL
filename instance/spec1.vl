@@ -26,7 +26,7 @@ defrule (suma x y) -> (suma y x) end
 
 [conmutative:bool asociative:int]
 
-defexpression (forall x in Set . (b inter a)) end
+defexpression (forall x in Set . ((b inter a) = a)) end
 defexpression (defer y in Set . (y min 0)) end
 
 defexpression (abs ≡ 0) end

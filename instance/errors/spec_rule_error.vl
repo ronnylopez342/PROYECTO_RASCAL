@@ -1,0 +1,12 @@
+defmodule RuleErrorExample
+
+defvar
+    x : int
+    b : bool
+end
+
+defoperator suma : int -> int -> int end
+
+defrule (suma x b) -> (suma b x) end
+
+end

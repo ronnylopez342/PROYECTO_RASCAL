@@ -13,7 +13,6 @@ syntax FileImport
     = fileImport: 'using' ID importName
 ;
 
-// Falta añadir Equation y Relation que no se agregan al no tener reglas de producción definidas
 syntax Body
     = body: Statement* statements
 ;
@@ -66,20 +65,24 @@ syntax Rule
     = rule: 'defrule' Invocation opApl1 '-\>' Invocation opApl2 'end'
 ;
 
+/*
+ * Invocaciones usadas en reglas.
+ * Se separan en unarias y binarias para que el checker pueda validar
+ * aridad y tipos de argumentos con TypePal.
+ *
+ * Ejemplos:
+ * (negation p)
+ * (suma x y)
+ */
 syntax Invocation
-    = invocation: '(' ID opName ID+ params ')'
+    = unaryInvocation: '(' ID opName Primary param ')'
+    | binaryInvocation: '(' ID opName Primary param1 Primary param2 ')'
 ;
 
 syntax Expression
     = expression: 'defexpression' TopExp topExp 'end'
 ;
 
-/*
- * Corrección del feedback del monitor:
- * El cuantificador ya no puede terminar solo con AttributeList.
- * Ahora siempre debe tener cuerpo después del punto:
- * (forall x in Set . expresion)
- */
 syntax TopExp
     = quantExp: '(' Quantifier quantifier ID obj1 'in' ID obj2 '.' TopExp topExp ')'
     | orExpRec: OrExp orExp
@@ -122,8 +125,6 @@ syntax Number
 
 syntax RelOp
     = eq: '=' 
-    | gt: '\>'
-    | lt: '\<'
     | ge: '\>=' 
     | le: '\<=' 
     | equiv: '≡' 
@@ -136,7 +137,6 @@ syntax Quantifier
     | defer: 'defer'
 ;
 
-// No utilizado todavía, pero pertenece al lenguaje
 syntax ArithOp
     = '+' | '-' | '*' | '/' | '**' | '%' 
 ;
@@ -148,33 +148,10 @@ syntax BoolLiteral
 
 lexical STRING = "\"" ![\"\n]* "\"";
 lexical CHAR = "\'" [^\'\n] "\'";
-
-lexical INT = [0-9]+ !>> [0-9];
-lexical FLOAT = [0-9]+ "." [0-9]+ !>> [0-9];
-
+lexical INT = ([\-0-9][0-9]* !>> [0-9]); 
+lexical FLOAT = [0-9]+ "." [0-9]+;
 lexical ID = ([a-zA-Z][a-zA-Z0-9_/.\-]* !>> [a-zA-Z0-9_/.\-]) \ Reserved;
 
-keyword Reserved 
-    = "forall" 
-    | "exists" 
-    | "defer" 
-    | "not" 
-    | "and" 
-    | "or" 
-    | "in" 
-    | "defrule" 
-    | "defexpression" 
-    | "defvar" 
-    | "defoperator" 
-    | "defspace" 
-    | "defmodule" 
-    | "using"
-    | "bool" 
-    | "int" 
-    | "real" 
-    | "end"
-    | "true"
-    | "false" 
-    | "string" 
-    | "char"
-;
+keyword Reserved = "forall" | "exists" | "defer" | "not" | "and" | "or" | "in" 
+| "defrule" | "defexpression" | "defvar" | "defoperator" | "defspace" | "defmodule" | "using"
+| "bool" | "int" | "real" | "end" | "true" | "false" | "string" | "char";

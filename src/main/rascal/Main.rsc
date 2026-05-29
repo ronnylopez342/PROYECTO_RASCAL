@@ -13,11 +13,14 @@ import analysis::typepal::TypePal;
  * Main por defecto.
  * Ejecuta el ejemplo principal actualizado del proyecto.
  *
- * Se usa project://rascaldslverilang para que el proyecto sea portable
- * y no dependa de la ruta local de un computador especifico.
+ * Se usa cwd:/// para evitar rutas absolutas del computador local
+ * y evitar problemas del esquema project:// en la terminal de VS Code.
+ *
+ * Para que funcione, se debe abrir/ejecutar Rascal desde la raiz del proyecto,
+ * donde existe la carpeta instance/.
  */
 int main() {
-    return main(|project://rascaldslverilang/instance/spec_types.vl|);
+    return main(|cwd:///instance/spec_types.vl|);
 }
 
 /*

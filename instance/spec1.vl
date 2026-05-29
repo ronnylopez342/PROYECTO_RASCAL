@@ -21,6 +21,7 @@ defoperator resta : real -> real end
 defoperator inter : Set -> Set -> Set end
 defoperator union : Set -> Set -> Set end
 defoperator min : Set -> int -> bool end
+defoperator isIn : Element -> Set -> bool end
 
 defrule (suma x y) -> (suma y x) end
 
@@ -33,7 +34,6 @@ defexpression (abs ≡ 0) end
 defexpression (not r and s or r) end
 defexpression (defer x in Set . r and s) end
 
-[isIn:bool]
 defexpression (forall x in Element . (forall S in Set . (forall U in Set . x isIn (S union U)))) end
 
 defexpression (forall y in Set . y = y) end

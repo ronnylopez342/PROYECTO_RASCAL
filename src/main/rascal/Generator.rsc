@@ -9,13 +9,13 @@ import IO;
 import ParseTree;
 
 void main() {
-    Tree cst = parseMainModule(|project://rascaldslverilang/instance/spec1.vl|);
+    Tree cst = parseMainModule(|cwd:///instance/spec1.vl|);
     str result = generator(cst);
 
     println(result);
 
     writeFile(
-        |project://rascaldslverilang/instance/output/testGenerator2.vl|,
+        |cwd:///instance/output/testGenerator2.vl|,
         result
     );
 }
@@ -51,17 +51,6 @@ str generate(defattribute(AttributeList attributeList)) = generate(attributeList
 // Space
 str generate(space(str spaceName)) = "defspace <spaceName> end";
 
-/*
- * CORRECCION PARA RUBRICA 5/5:
- *
- * Permite generar estructuras de datos con tipo de elemento:
- *
- *   defspace Set : Element end
- *   defspace Group : Person end
- *
- * Esto corresponde al requisito de que las estructuras definidas
- * tambien incluyan un tipo dado por el usuario.
- */
 str generate(typedSpace(str spaceName, Domain elementType)) {
     return "defspace <spaceName> : <generate(elementType)> end";
 }

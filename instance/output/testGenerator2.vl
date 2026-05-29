@@ -5,27 +5,21 @@ using LibB
 defspace reales end
 defspace Set end
 defspace Element end
-defvar x : int end
-defvar y : int end
-defvar a : Set end
-defvar b : Set end
-defvar r : bool end
-defvar s : bool end
-defvar abs : int end
+defvar x : int y : int a : Set b : Set r : bool s : bool abs : int end
 defspace enteros < reales end
 defoperator suma : int -> int -> int end
 defoperator resta : real -> real end
 defoperator inter : Set -> Set -> Set end
 defoperator union : Set -> Set -> Set end
 defoperator min : Set -> int -> bool end
+defoperator isIn : Element -> Set -> bool end
 defrule (suma x y) -> (suma y x) end
 [conmutative:bool asociative:int]
 defexpression (forall x in Set . ((b inter a) = a)) end
 defexpression (defer y in Set . (y min 0)) end
-defexpression (abs ≡ 0) end
-defexpression (not r and s or r) end
+defexpression abs ≡ 0 end
+defexpression not r and s or r end
 defexpression (defer x in Set . r and s) end
-[isIn:bool]
 defexpression (forall x in Element . (forall S in Set . (forall U in Set . x isIn (S union U)))) end
 defexpression (forall y in Set . y = y) end
 end

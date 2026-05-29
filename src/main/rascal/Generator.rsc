@@ -15,7 +15,7 @@ void main() {
     println(result);
 
     writeFile(
-        |cwd:///instance/output/testGenerator2.vl|,
+        |cwd:///instance/output/testGenerator.vl|,
         result
     );
 }

@@ -13,11 +13,11 @@ import analysis::typepal::TypePal;
  * Main por defecto.
  * Ejecuta el ejemplo principal actualizado del proyecto.
  *
- * Se usa una ruta file:/// porque en este entorno el project://rascaldslverilang
- * no corresponde al nombre real del proyecto abierto en VS Code.
+ * Se usa project://rascaldslverilang para que el proyecto sea portable
+ * y no dependa de la ruta local de un computador especifico.
  */
 int main() {
-    return main(|file:///C:/Users/Roni/PROYECTO_RASCAL/instance/spec_types.vl|);
+    return main(|project://rascaldslverilang/instance/spec_types.vl|);
 }
 
 /*

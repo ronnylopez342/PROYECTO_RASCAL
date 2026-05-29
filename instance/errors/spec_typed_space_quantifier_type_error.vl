@@ -1,0 +1,15 @@
+defmodule TypedSpaceQuantifierTypeError
+
+defspace Element end
+defspace Set : Element end
+
+defvar
+    s : Set
+end
+
+defoperator belongsTo : Element -> Set -> bool end
+defoperator badRelation : Set -> Set -> bool end
+
+defexpression (forall e in Set . e badRelation s) end
+
+end

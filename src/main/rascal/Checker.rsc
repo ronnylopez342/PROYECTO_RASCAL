@@ -22,12 +22,149 @@ data IdRole
     | spaceId()
 ;
 
+/*
+ * Guarda el tipo de elemento de cada estructura tipada.
+ *
+ * Ejemplo:
+ *   defspace Set : Element end
+ *
+ * queda guardado como:
+ *   "Set" -> userType("Element")
+ */
+map[str, AType] typedSpaceElementTypes = ();
+
 AType domainToType((Domain) `bool`)   = boolType();
 AType domainToType((Domain) `int`)    = intType();
 AType domainToType((Domain) `real`)   = realType();
 AType domainToType((Domain) `string`) = stringType();
 AType domainToType((Domain) `char`)   = charType();
 AType domainToType((Domain) `<ID name>`) = userType("<name>");
+
+void useDomainIfUserDefined(Domain d, Collector c) {
+    if (domainToType(d) is userType) {
+        c.use(d, {spaceId()});
+    }
+}
+
+void registerTypedSpaces(Tree pt) {
+    typedSpaceElementTypes = ();
+
+    if (pt has top) {
+        pt = pt.top;
+    }
+
+    visit(pt) {
+        case (Space) `defspace <ID name> : <Domain elementType> end`: {
+            typedSpaceElementTypes["<name>"] = domainToType(elementType);
+        }
+
+        case (Space) `defspace <ID sub> \< <ID super> : <Domain elementType> end`: {
+            typedSpaceElementTypes["<sub>"] = domainToType(elementType);
+        }
+    }
+}
+
+AType quantifiedVariableType(str domainName) {
+    if (domainName in typedSpaceElementTypes) {
+        return typedSpaceElementTypes[domainName];
+    }
+
+    return userType(domainName);
+}
+
+/*
+ * Nodos contenedores.
+ * Estos collect evitan los mensajes informativos de TypePal:
+ * "Missing collect for ..."
+ */
+
+void collect(
+    current: (MainModule) `defmodule <ID moduleName> <FileImport* fileImports> <Body body> end`,
+    Collector c
+) {
+    collect(body, c);
+}
+
+void collect(
+    current: (Body) `<Statement* statements>`,
+    Collector c
+) {
+    for (s <- statements) {
+        collect(s, c);
+    }
+}
+
+void collect(
+    current: (Statement) `<Space space>`,
+    Collector c
+) {
+    collect(space, c);
+}
+
+void collect(
+    current: (Statement) `<Operator operator>`,
+    Collector c
+) {
+    collect(operator, c);
+}
+
+void collect(
+    current: (Statement) `<Variables variables>`,
+    Collector c
+) {
+    collect(variables, c);
+}
+
+void collect(
+    current: (Statement) `<Rule rule>`,
+    Collector c
+) {
+    collect(rule, c);
+}
+
+void collect(
+    current: (Statement) `<Expression expression>`,
+    Collector c
+) {
+    collect(expression, c);
+}
+
+void collect(
+    current: (Statement) `<AttributeList attributeList>`,
+    Collector c
+) {
+    collect(attributeList, c);
+}
+
+void collect(
+    current: (Variables) `defvar <VarDecl+ vars> end`,
+    Collector c
+) {
+    for (v <- vars) {
+        collect(v, c);
+    }
+}
+
+void collect(
+    current: (Expression) `defexpression <TopExp exp> end`,
+    Collector c
+) {
+    collect(exp, c);
+    c.fact(current, exp);
+}
+
+void collect(
+    current: (AttributeList) `[ <Attribute+ attributes> ]`,
+    Collector c
+) {
+    for (a <- attributes) {
+        collect(a, c);
+    }
+}
+
+/*
+ * Espacios.
+ */
 
 void collect(
     current: (Space) `defspace <ID name> end`,
@@ -37,12 +174,33 @@ void collect(
 }
 
 void collect(
+    current: (Space) `defspace <ID name> : <Domain elementType> end`,
+    Collector c
+) {
+    c.define("<name>", spaceId(), name, defType(userType("<name>")));
+    useDomainIfUserDefined(elementType, c);
+}
+
+void collect(
     current: (Space) `defspace <ID sub> \< <ID super> end`,
     Collector c
 ) {
     c.define("<sub>", spaceId(), sub, defType(userType("<sub>")));
     c.use(super, {spaceId()});
 }
+
+void collect(
+    current: (Space) `defspace <ID sub> \< <ID super> : <Domain elementType> end`,
+    Collector c
+) {
+    c.define("<sub>", spaceId(), sub, defType(userType("<sub>")));
+    c.use(super, {spaceId()});
+    useDomainIfUserDefined(elementType, c);
+}
+
+/*
+ * Variables.
+ */
 
 void collect(
     current: (VarDecl) `<ID name> : <Domain d>`,
@@ -55,10 +213,12 @@ void collect(
         defType(domainToType(d))
     );
 
-    if (domainToType(d) is userType) {
-        c.use(d, {spaceId()});
-    }
+    useDomainIfUserDefined(d, c);
 }
+
+/*
+ * Operadores.
+ */
 
 void collect(
     current: (Operator) `defoperator <ID name> : <Domain d1> -\> <Domain d2> end`,
@@ -74,8 +234,8 @@ void collect(
         ]))
     );
 
-    if (domainToType(d1) is userType) c.use(d1, {spaceId()});
-    if (domainToType(d2) is userType) c.use(d2, {spaceId()});
+    useDomainIfUserDefined(d1, c);
+    useDomainIfUserDefined(d2, c);
 }
 
 void collect(
@@ -93,10 +253,14 @@ void collect(
         ]))
     );
 
-    if (domainToType(d1) is userType) c.use(d1, {spaceId()});
-    if (domainToType(d2) is userType) c.use(d2, {spaceId()});
-    if (domainToType(d3) is userType) c.use(d3, {spaceId()});
+    useDomainIfUserDefined(d1, c);
+    useDomainIfUserDefined(d2, c);
+    useDomainIfUserDefined(d3, c);
 }
+
+/*
+ * Reglas.
+ */
 
 void collect(
     current: (Rule) `defrule <Invocation left> -\> <Invocation right> end`,
@@ -120,6 +284,10 @@ void collect(
         }
     );
 }
+
+/*
+ * Invocaciones.
+ */
 
 void collect(
     current: (Invocation) `(<ID opName> <Primary p1>)`,
@@ -226,6 +394,10 @@ void collect(
     );
 }
 
+/*
+ * Atributos.
+ */
+
 void collect(
     current: (Attribute) `<ID name> : <Domain d>`,
     Collector c
@@ -237,9 +409,7 @@ void collect(
         defType(domainToType(d))
     );
 
-    if (domainToType(d) is userType) {
-        c.use(d, {spaceId()});
-    }
+    useDomainIfUserDefined(d, c);
 }
 
 void collect(
@@ -253,6 +423,10 @@ void collect(
         defType(boolType())
     );
 }
+
+/*
+ * Primarios.
+ */
 
 void collect(
     current: (Primary) `<ID name>`,
@@ -312,6 +486,10 @@ void collect(
     c.fact(current, e);
 }
 
+/*
+ * Expresiones.
+ */
+
 void collect(
     current: (TopExp) `(<Quantifier q> <ID var> in <ID domain> . <TopExp body>)`,
     Collector c
@@ -324,7 +502,7 @@ void collect(
         "<var>",
         variableId(),
         var,
-        defType(userType("<domain>"))
+        defType(quantifiedVariableType("<domain>"))
     );
 
     collect(body, c);
@@ -420,10 +598,6 @@ void collect(
                 );
 
                 return signature[2];
-            }
-
-            if (boolType() := opType) {
-                return boolType();
             }
 
             s.report(
@@ -550,13 +724,23 @@ void collect(
     c.fact(current, e);
 }
 
+/*
+ * Subtipado.
+ */
+
 bool subtype(AType t, AType t) = true;
 default bool subtype(AType _, AType _) = false;
+
+/*
+ * Entrada publica del checker.
+ */
 
 public TModel modulesTModelFromTree(Tree pt) {
     if (pt has top) {
         pt = pt.top;
     }
+
+    registerTypedSpaces(pt);
 
     TypePalConfig cfg = getModulesConfig();
     Collector c = newCollector("collectAndSolve", pt, cfg);

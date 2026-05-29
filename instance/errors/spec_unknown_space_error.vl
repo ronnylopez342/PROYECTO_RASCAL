@@ -1,7 +1,9 @@
 defmodule UnknownSpaceError
 
+defspace Group : Person end
+
 defvar
-    x : UnknownSpace
+    x : Group
 end
 
 defexpression x = x end

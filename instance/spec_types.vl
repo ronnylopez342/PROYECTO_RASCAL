@@ -1,7 +1,7 @@
 defmodule TypeExamples
 
 defspace Person end
-defspace Group end
+defspace Group : Person end
 
 defvar
     age : int
@@ -31,5 +31,7 @@ defexpression initial = otherInitial end
 defexpression p = q end
 defexpression p belongsTo g end
 defexpression p samePerson q end
+
+defexpression (forall member in Group . member belongsTo g) end
 
 end

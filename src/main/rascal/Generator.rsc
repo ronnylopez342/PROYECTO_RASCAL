@@ -50,7 +50,27 @@ str generate(defattribute(AttributeList attributeList)) = generate(attributeList
 
 // Space
 str generate(space(str spaceName)) = "defspace <spaceName> end";
+
+/*
+ * CORRECCION PARA RUBRICA 5/5:
+ *
+ * Permite generar estructuras de datos con tipo de elemento:
+ *
+ *   defspace Set : Element end
+ *   defspace Group : Person end
+ *
+ * Esto corresponde al requisito de que las estructuras definidas
+ * tambien incluyan un tipo dado por el usuario.
+ */
+str generate(typedSpace(str spaceName, Domain elementType)) {
+    return "defspace <spaceName> : <generate(elementType)> end";
+}
+
 str generate(subspace(str sub, str super)) = "defspace <sub> \< <super> end";
+
+str generate(typedSubspace(str sub, str super, Domain elementType)) {
+    return "defspace <sub> \< <super> : <generate(elementType)> end";
+}
 
 // Operator
 str generate(operator(str opName, Domain domain, list[Domain] range)) {

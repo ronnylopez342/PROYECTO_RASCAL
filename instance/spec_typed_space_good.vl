@@ -1,0 +1,15 @@
+defmodule TypedSpaceGood
+
+defspace Element end
+defspace Set : Element end
+
+defvar
+    e : Element
+    s : Set
+end
+
+defoperator belongsTo : Element -> Set -> bool end
+
+defexpression e belongsTo s end
+
+end

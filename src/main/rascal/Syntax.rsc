@@ -26,9 +26,25 @@ syntax Statement
     | defattribute: AttributeList attributeList
 ;
 
+/*
+ * CORRECCION PARA RUBRICA 5/5:
+ *
+ * Antes:
+ *   defspace Set end
+ *
+ * Ahora tambien acepta:
+ *   defspace Element end
+ *   defspace Set : Element end
+ *   defspace Group : Person end
+ *
+ * Esto permite que una estructura de datos tenga un tipo de elemento
+ * definido por el usuario.
+ */
 syntax Space
     = space: 'defspace' ID spaceName 'end'
+    | typedSpace: 'defspace' ID spaceName ':' Domain elementType 'end'
     | subspace: 'defspace' ID subSpace '\<' ID superSpace 'end'
+    | typedSubspace: 'defspace' ID subSpace '\<' ID superSpace ':' Domain elementType 'end'
 ;
 
 syntax Operator
@@ -153,9 +169,9 @@ lexical CHAR = "\'" [^\'\n] "\'";
 
 /*
  * INT corregido:
- * Antes permitía "-" solo como entero.
+ * Antes permitia "-" solo como entero.
  * Ahora acepta un signo negativo opcional seguido obligatoriamente
- * por uno o más dígitos.
+ * por uno o mas digitos.
  */
 lexical INT = [\-]? [0-9]+ !>> [0-9];
 

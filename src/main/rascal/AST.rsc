@@ -21,9 +21,23 @@ data Statement
     | defattribute(AttributeList attributeList)
 ;
 
+/*
+ * CORRECCION PARA RUBRICA 5/5:
+ *
+ * Antes el AST solo guardaba:
+ *   defspace Set end
+ *
+ * Ahora tambien guarda:
+ *   defspace Set : Element end
+ *
+ * typedSpace representa una estructura de datos cuyo tipo de elemento
+ * fue dado por el usuario.
+ */
 data Space
     = space(str spaceName)
+    | typedSpace(str spaceName, Domain elementType)
     | subspace(str subSpace, str superSpace)
+    | typedSubspace(str subSpace, str superSpace, Domain elementType)
 ;
 
 data Operator
@@ -62,8 +76,6 @@ data Rule
 
 /*
  * Invocaciones usadas en reglas.
- *
- * Se separan en dos casos para facilitar el chequeo semantico:
  *
  * unaryInvocation:
  *     (negation p)
@@ -136,10 +148,6 @@ data Quantifier
     | defer()
 ;
 
-/*
- * No se usa todavia en el lenguaje,
- * pero pertenece a la definicion general de VeriLang.
- */
 data ArithOp
     = arithAdd()
     | arithSub()

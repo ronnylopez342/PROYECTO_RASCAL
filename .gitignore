@@ -1,0 +1,12 @@
+target/
+build/
+bin/
+.gradle/
+
+kotlin-app/build/
+kotlin-app/bin/
+kotlin-app/.gradle/
+
+*.class
+*.lock
+.DS_Store
